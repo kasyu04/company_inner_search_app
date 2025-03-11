@@ -55,6 +55,9 @@ SUPPORTED_EXTENSIONS = {
 WEB_URL_LOAD_TARGETS = [
     "https://generative-ai.web-camp.io/"
 ]
+CSV_INTEGRATION_TARGETS = [
+    "社員名簿.csv"
+]
 
 
 # ==========================================
