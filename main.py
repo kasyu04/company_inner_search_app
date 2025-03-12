@@ -19,7 +19,7 @@ from initialize import initialize
 import components as cn
 # （自作）変数（定数）がまとめて定義・管理されているモジュール
 import constants as ct
-
+import os
 
 ############################################################
 # 2. 設定関連
@@ -159,10 +159,11 @@ if chat_message:
 # ドキュメントデータのロード
 try:
     docs = []
-    for ext, loader in ct.SUPPORTED_EXTENSIONS.items():
-        for file in os.listdir(ct.RAG_TOP_FOLDER_PATH):
-            if file.endswith(ext):
-                docs.extend(loader(os.path.join(ct.RAG_TOP_FOLDER_PATH, file)).load())
+    for file in os.listdir(ct.RAG_TOP_FOLDER_PATH):
+        ext = os.path.splitext(file)[1]
+        if ext in ct.SUPPORTED_EXTENSIONS:
+            loader = ct.SUPPORTED_EXTENSIONS[ext]
+            docs.extend(loader(os.path.join(ct.RAG_TOP_FOLDER_PATH, file)).load())
     if not docs:
         raise ValueError("No documents found in the specified directory.")
 except Exception as e:
