@@ -19,6 +19,12 @@ from initialize import initialize
 import components as cn
 # （自作）変数（定数）がまとめて定義・管理されているモジュール
 import constants as ct
+# osモジュールのインポート
+import os
+# OpenAIEmbeddingsのインポート
+from openai.embeddings_utils import OpenAIEmbeddings
+# Chromaのインポート
+from chromadb import Chroma
 
 
 ############################################################
@@ -157,3 +163,34 @@ if chat_message:
     st.session_state.messages.append({"role": "user", "content": chat_message})
     # 表示用の会話ログにAIメッセージを追加
     st.session_state.messages.append({"role": "assistant", "content": content})
+
+
+############################################################
+# 8. ドキュメントデータのロード
+############################################################
+try:
+    docs = []
+    for ext, loader in ct.SUPPORTED_EXTENSIONS.items():
+        for file in os.listdir(ct.RAG_TOP_FOLDER_PATH):
+            if file.endswith(ext):
+                docs.extend(loader(os.path.join(ct.RAG_TOP_FOLDER_PATH, file)).load())
+    if not docs:
+        raise ValueError("No documents found in the specified directory.")
+except Exception as e:
+    st.error(f"Error loading documents: {e}")
+    st.stop()
+
+############################################################
+# 9. ベクターストアの設定
+############################################################
+try:
+    embeddings = OpenAIEmbeddings()
+    db = Chroma.from_documents(docs, embedding=embeddings)
+except Exception as e:
+    st.error(f"Error setting up vector store: {e}")
+    st.stop()
+
+############################################################
+# 10. 検索スコアの閾値を設定
+############################################################
+retriever = db.as_retriever(search_kwargs={"k": 5, "score_threshold": 0.8})
