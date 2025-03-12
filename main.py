@@ -156,27 +156,5 @@ if chat_message:
     # 表示用の会話ログにAIメッセージを追加
     st.session_state.messages.append({"role": "assistant", "content": content})
 
-# ドキュメントデータのロード
-try:
-    docs = []
-    for file in os.listdir(ct.RAG_TOP_FOLDER_PATH):
-        ext = os.path.splitext(file)[1]
-        if ext in ct.SUPPORTED_EXTENSIONS:
-            loader = ct.SUPPORTED_EXTENSIONS[ext]
-            docs.extend(loader(os.path.join(ct.RAG_TOP_FOLDER_PATH, file)).load())
-    if not docs:
-        raise ValueError("No documents found in the specified directory.")
-except Exception as e:
-    st.error(f"Error loading documents: {e}")
-    st.stop()
-
-# ベクターストアの設定
-try:
-    embeddings = OpenAIEmbeddings()
-    db = Chroma.from_documents(docs, embedding=embeddings)
-except Exception as e:
-    st.error(f"Error setting up vector store: {e}")
-    st.stop()
-
 # 検索スコアの閾値を設定
 retriever = db.as_retriever(search_kwargs={"k": 5, "score_threshold": 0.8})
