@@ -19,6 +19,8 @@ from initialize import initialize
 import components as cn
 # （自作）変数（定数）がまとめて定義・管理されているモジュール
 import constants as ct
+# pandasをインポート
+import pandas as pd
 
 
 ############################################################
