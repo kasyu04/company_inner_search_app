@@ -155,6 +155,3 @@ if chat_message:
     st.session_state.messages.append({"role": "user", "content": chat_message})
     # 表示用の会話ログにAIメッセージを追加
     st.session_state.messages.append({"role": "assistant", "content": content})
-
-# 検索スコアの閾値を設定
-retriever = db.as_retriever(search_kwargs={"k": 5, "score_threshold": 0.8})
