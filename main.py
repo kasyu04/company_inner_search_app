@@ -21,6 +21,11 @@ import components as cn
 import constants as ct
 # pandasをインポート
 import pandas as pd
+# langchain関連のモジュール
+from langchain_community.vectorstores import Chroma
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.document_loaders import PyMuPDFLoader, Docx2txtLoader, TextLoader
+from langchain_community.document_loaders.csv_loader import CSVLoader
 
 
 ############################################################
@@ -161,12 +166,33 @@ if chat_message:
     # 表示用の会話ログにAIメッセージを追加
     st.session_state.messages.append({"role": "assistant", "content": content})
 
+    # ==========================================
+    # 7-5. 人事部に所属している従業員情報の検索と表示
+    # ==========================================
+    if "人事部に所属している従業員情報を一覧化して" in chat_message:
+        try:
+            # CSVファイルの読み込み
+            employee_data = pd.read_csv(os.path.join(ct.RAG_TOP_FOLDER_PATH, "社員名簿.csv"))
+            # 人事部に所属している従業員情報をフィルタリング
+            hr_employees = employee_data[employee_data["部署"] == "人事部"]
+            # 結果を表示
+            if not hr_employees.empty:
+                st.write("人事部に所属している従業員情報:")
+                st.write(hr_employees)
+            else:
+                st.write("人事部に所属している従業員情報が見つかりませんでした。")
+        except Exception as e:
+            st.error(f"従業員情報の取得に失敗しました: {e}")
+
 # ドキュメントデータのロード
 try:
-    loader = CSVLoader(file_path="data/documents.csv", encoding='utf-8')
-    docs = loader.load()
+    docs = []
+    for ext, loader in ct.SUPPORTED_EXTENSIONS.items():
+        for file in os.listdir(ct.RAG_TOP_FOLDER_PATH):
+            if file.endswith(ext):
+                docs.extend(loader(os.path.join(ct.RAG_TOP_FOLDER_PATH, file)).load())
 except Exception as e:
-    st.error(f"Error loading CSV file: {e}")
+    st.error(f"Error loading documents: {e}")
     st.stop()
 
 # ベクターストアの設定
