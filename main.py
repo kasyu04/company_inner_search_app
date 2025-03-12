@@ -19,12 +19,6 @@ from initialize import initialize
 import components as cn
 # （自作）変数（定数）がまとめて定義・管理されているモジュール
 import constants as ct
-# osモジュールのインポート
-import os
-# OpenAIEmbeddingsのインポート
-from openai.embeddings_utils import OpenAIEmbeddings
-# Chromaのインポート
-from chromadb import Chroma
 
 
 ############################################################
@@ -112,8 +106,6 @@ if chat_message:
     # ==========================================
     # 「st.spinner」でグルグル回っている間、表示の不具合が発生しないよう空のエリアを表示
     res_box = st.empty()
-    # 検索スコアの閾値を設定
-    retriever = db.as_retriever(search_kwargs={"k": 5, "score_threshold": 0.8})
     # LLMによる回答生成（回答生成が完了するまでグルグル回す）
     with st.spinner(ct.SPINNER_TEXT):
         try:
@@ -164,10 +156,7 @@ if chat_message:
     # 表示用の会話ログにAIメッセージを追加
     st.session_state.messages.append({"role": "assistant", "content": content})
 
-
-############################################################
-# 8. ドキュメントデータのロード
-############################################################
+# ドキュメントデータのロード
 try:
     docs = []
     for ext, loader in ct.SUPPORTED_EXTENSIONS.items():
@@ -180,9 +169,7 @@ except Exception as e:
     st.error(f"Error loading documents: {e}")
     st.stop()
 
-############################################################
-# 9. ベクターストアの設定
-############################################################
+# ベクターストアの設定
 try:
     embeddings = OpenAIEmbeddings()
     db = Chroma.from_documents(docs, embedding=embeddings)
@@ -190,7 +177,5 @@ except Exception as e:
     st.error(f"Error setting up vector store: {e}")
     st.stop()
 
-############################################################
-# 10. 検索スコアの閾値を設定
-############################################################
+# 検索スコアの閾値を設定
 retriever = db.as_retriever(search_kwargs={"k": 5, "score_threshold": 0.8})
