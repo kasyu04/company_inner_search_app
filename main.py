@@ -19,15 +19,6 @@ from initialize import initialize
 import components as cn
 # （自作）変数（定数）がまとめて定義・管理されているモジュール
 import constants as ct
-# pandasをインポート
-import pandas as pd
-# osモジュールをインポート
-import os
-# langchain関連のモジュール
-from langchain_community.vectorstores import Chroma
-from langchain_openai import OpenAIEmbeddings
-from langchain_community.document_loaders import PyMuPDFLoader, Docx2txtLoader, TextLoader
-from langchain_community.document_loaders.csv_loader import CSVLoader
 
 
 ############################################################
@@ -37,9 +28,6 @@ from langchain_community.document_loaders.csv_loader import CSVLoader
 st.set_page_config(
     page_title=ct.APP_NAME
 )
-
-# 環境変数を読み込む
-load_dotenv()
 
 # ログ出力を行うためのロガーの設定
 logger = logging.getLogger(ct.LOGGER_NAME)
@@ -167,55 +155,3 @@ if chat_message:
     st.session_state.messages.append({"role": "user", "content": chat_message})
     # 表示用の会話ログにAIメッセージを追加
     st.session_state.messages.append({"role": "assistant", "content": content})
-
-    # ==========================================
-    # 7-5. 人事部に所属している従業員情報の検索と表示
-    # ==========================================
-    if "人事部に所属している従業員情報を一覧化して" in chat_message:
-        try:
-            # CSVファイルの読み込み
-            employee_data = pd.read_csv(os.path.join(ct.RAG_TOP_FOLDER_PATH, "社員名簿.csv"))
-            # 人事部に所属している従業員情報をフィルタリング
-            hr_employees = employee_data[employee_data["部署"] == "人事部"]
-            # 結果を表示
-            if not hr_employees.empty:
-                st.write("人事部に所属している従業員情報:")
-                st.write(hr_employees)
-            else:
-                st.write("人事部に所属している従業員情報が見つかりませんでした。")
-        except Exception as e:
-            st.error(f"従業員情報の取得に失敗しました: {e}")
-
-# ドキュメントデータのロード
-try:
-    docs = []
-    for ext, loader in ct.SUPPORTED_EXTENSIONS.items():
-        for file in os.listdir(ct.RAG_TOP_FOLDER_PATH):
-            if file.endswith(ext):
-                docs.extend(loader(os.path.join(ct.RAG_TOP_FOLDER_PATH, file)).load())
-except Exception as e:
-    st.error(f"Error loading documents: {e}")
-    st.stop()
-
-# ベクターストアの設定
-embeddings = OpenAIEmbeddings()
-db = Chroma.from_documents(docs, embedding=embeddings)
-
-# 検索スコアの閾値を設定
-retriever = db.as_retriever(search_kwargs={"k": 5, "score_threshold": 0.8})
-
-# 社内問い合わせの処理
-if st.session_state.mode == ct.ANSWER_MODE_2:
-    with st.spinner(ct.SPINNER_TEXT):
-        try:
-            # ユーザーの入力に基づいてベクターストアから関連するドキュメントを検索
-            results = retriever.retrieve(chat_message)
-            if results:
-                # 検索結果を表示
-                st.write("関連するドキュメント:")
-                for result in results:
-                    st.write(result["content"])
-            else:
-                st.write("該当資料なし")
-        except Exception as e:
-            st.error(f"ドキュメントの検索に失敗しました: {e}")

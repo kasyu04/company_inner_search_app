@@ -56,10 +56,6 @@ WEB_URL_LOAD_TARGETS = [
     "https://generative-ai.web-camp.io/"
 ]
 
-# CSVファイルの統合対象
-CSV_INTEGRATION_TARGETS = [
-    "社員名簿.csv"
-]
 
 # ==========================================
 # プロンプトテンプレート
