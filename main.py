@@ -21,6 +21,8 @@ import components as cn
 import constants as ct
 # pandasをインポート
 import pandas as pd
+# osモジュールをインポート
+import os
 # langchain関連のモジュール
 from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings
