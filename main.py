@@ -29,6 +29,9 @@ st.set_page_config(
     page_title=ct.APP_NAME
 )
 
+# 環境変数を読み込む
+load_dotenv()
+
 # ログ出力を行うためのロガーの設定
 logger = logging.getLogger(ct.LOGGER_NAME)
 
@@ -155,3 +158,34 @@ if chat_message:
     st.session_state.messages.append({"role": "user", "content": chat_message})
     # 表示用の会話ログにAIメッセージを追加
     st.session_state.messages.append({"role": "assistant", "content": content})
+
+# ドキュメントデータのロード
+try:
+    loader = CSVLoader(file_path="data/documents.csv", encoding='utf-8')
+    docs = loader.load()
+except Exception as e:
+    st.error(f"Error loading CSV file: {e}")
+    st.stop()
+
+# ベクターストアの設定
+embeddings = OpenAIEmbeddings()
+db = Chroma.from_documents(docs, embedding=embeddings)
+
+# 検索スコアの閾値を設定
+retriever = db.as_retriever(search_kwargs={"k": 5, "score_threshold": 0.8})
+
+# 社内問い合わせの処理
+if st.session_state.mode == ct.ANSWER_MODE_2:
+    with st.spinner(ct.SPINNER_TEXT):
+        try:
+            # ユーザーの入力に基づいてベクターストアから関連するドキュメントを検索
+            results = retriever.retrieve(chat_message)
+            if results:
+                # 検索結果を表示
+                st.write("関連するドキュメント:")
+                for result in results:
+                    st.write(result["content"])
+            else:
+                st.write("該当資料なし")
+        except Exception as e:
+            st.error(f"ドキュメントの検索に失敗しました: {e}")
