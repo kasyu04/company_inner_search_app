@@ -168,6 +168,24 @@ if chat_message:
     # 表示用の会話ログにAIメッセージを追加
     st.session_state.messages.append({"role": "assistant", "content": content})
 
+    # ==========================================
+    # 7-5. 人事部に所属している従業員情報の検索と表示
+    # ==========================================
+    if "人事部に所属している従業員情報を一覧化して" in chat_message:
+        try:
+            # CSVファイルの読み込み
+            employee_data = pd.read_csv(os.path.join(ct.RAG_TOP_FOLDER_PATH, "社員名簿.csv"))
+            # 人事部に所属している従業員情報をフィルタリング
+            hr_employees = employee_data[employee_data["部署"] == "人事部"]
+            # 結果を表示
+            if not hr_employees.empty:
+                st.write("人事部に所属している従業員情報:")
+                st.write(hr_employees)
+            else:
+                st.write("人事部に所属している従業員情報が見つかりませんでした。")
+        except Exception as e:
+            st.error(f"従業員情報の取得に失敗しました: {e}")
+
 # ドキュメントデータのロード
 try:
     docs = []
