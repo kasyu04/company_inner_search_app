@@ -56,9 +56,9 @@ if not "initialized" in st.session_state:
 ############################################################
 # 4. 初期表示の前にサイドバーの設定を追加
 ############################################################
-st.sidebar.title("利用目的の選択")
 mode = st.sidebar.radio(
-     (ct.ANSWER_MODE_1, ct.ANSWER_MODE_2)
+    "####利用目的:",
+    (ct.ANSWER_MODE_1, ct.ANSWER_MODE_2)
 )
 st.session_state.mode = mode
 
