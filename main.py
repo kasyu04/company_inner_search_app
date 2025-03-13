@@ -19,12 +19,6 @@ from initialize import initialize
 import components as cn
 # （自作）変数（定数）がまとめて定義・管理されているモジュール
 import constants as ct
-import pandas as pd
-import os
-from langchain_community.vectorstores import Chroma
-from langchain_openai import OpenAIEmbeddings
-from langchain_community.document_loaders import PyMuPDFLoader, Docx2txtLoader, TextLoader
-from langchain_community.document_loaders.csv_loader import CSVLoader
 
 
 ############################################################
@@ -34,8 +28,6 @@ from langchain_community.document_loaders.csv_loader import CSVLoader
 st.set_page_config(
     page_title=ct.APP_NAME
 )
-
-load_dotenv()
 
 # ログ出力を行うためのロガーの設定
 logger = logging.getLogger(ct.LOGGER_NAME)
@@ -59,7 +51,6 @@ except Exception as e:
 if not "initialized" in st.session_state:
     st.session_state.initialized = True
     logger.info(ct.APP_BOOT_MESSAGE)
-
 
 ############################################################
 # 4. 初期表示の前にサイドバーの設定を追加
@@ -92,17 +83,20 @@ st.sidebar.code("人事部に所属している従業員情報を一覧化して
 
 
 ############################################################
-# 5. 初期表示
+# 4. 初期表示
 ############################################################
 # タイトル表示
 cn.display_app_title()
+
+# モード表示
+cn.display_select_mode()
 
 # AIメッセージの初期表示
 cn.display_initial_ai_message()
 
 
 ############################################################
-# 6. 会話ログの表示
+# 5. 会話ログの表示
 ############################################################
 try:
     # 会話ログの表示
@@ -117,17 +111,17 @@ except Exception as e:
 
 
 ############################################################
-# 7. チャット入力の受け付け
+# 6. チャット入力の受け付け
 ############################################################
 chat_message = st.chat_input(ct.CHAT_INPUT_HELPER_TEXT)
 
 
 ############################################################
-# 8. チャット送信時の処理
+# 7. チャット送信時の処理
 ############################################################
 if chat_message:
     # ==========================================
-    # 8-1. ユーザーメッセージの表示
+    # 7-1. ユーザーメッセージの表示
     # ==========================================
     # ユーザーメッセージのログ出力
     logger.info({"message": chat_message, "application_mode": st.session_state.mode})
@@ -137,7 +131,7 @@ if chat_message:
         st.markdown(chat_message)
 
     # ==========================================
-    # 8-2. LLMからの回答取得
+    # 7-2. LLMからの回答取得
     # ==========================================
     # 「st.spinner」でグルグル回っている間、表示の不具合が発生しないよう空のエリアを表示
     res_box = st.empty()
@@ -155,16 +149,20 @@ if chat_message:
             st.stop()
     
     # ==========================================
-    # 8-3. LLMからの回答表示
+    # 7-3. LLMからの回答表示
     # ==========================================
     with st.chat_message("assistant"):
         try:
+            # ==========================================
             # モードが「社内文書検索」の場合
+            # ==========================================
             if st.session_state.mode == ct.ANSWER_MODE_1:
                 # 入力内容と関連性が高い社内文書のありかを表示
                 content = cn.display_search_llm_response(llm_response)
 
+            # ==========================================
             # モードが「社内問い合わせ」の場合
+            # ==========================================
             elif st.session_state.mode == ct.ANSWER_MODE_2:
                 # 入力に対しての回答と、参照した文書のありかを表示
                 content = cn.display_contact_llm_response(llm_response)
@@ -180,44 +178,9 @@ if chat_message:
             st.stop()
 
     # ==========================================
-    # 8-4. 会話ログへの追加
+    # 7-4. 会話ログへの追加
     # ==========================================
     # 表示用の会話ログにユーザーメッセージを追加
     st.session_state.messages.append({"role": "user", "content": chat_message})
     # 表示用の会話ログにAIメッセージを追加
     st.session_state.messages.append({"role": "assistant", "content": content})
-
-# ドキュメントデータのロード
-try:
-    docs = []
-    for ext, loader in ct.SUPPORTED_EXTENSIONS.items():
-        for file in os.listdir(ct.RAG_TOP_FOLDER_PATH):
-            if file.endswith(ext):
-                docs.extend(loader(os.path.join(ct.RAG_TOP_FOLDER_PATH, file)).load())
-    if not docs:
-        raise ValueError("No documents found in the specified directory.")
-except Exception as e:
-    st.error(f"Error loading documents: {e}")
-    st.stop()
-
-# ベクターストアの設定
-embeddings = OpenAIEmbeddings()
-db = Chroma.from_documents(docs, embedding=embeddings)
-
-# 検索スコアの閾値を設定
-retriever = db.as_retriever(search_kwargs={"k": ct.VECTOR_STORE_K})
-
-# 社内問い合わせの処理
-if st.session_state.mode == ct.ANSWER_MODE_2:
-    with st.spinner(ct.SPINNER_TEXT):
-        try:
-            results = retriever.retrieve(chat_message)
-            if results:
-                st.write("関連するドキュメント:")
-                for result in results:
-                    st.write(result["content"])
-            else:
-                st.write("該当資料なし")
-        except Exception as e:
-            st.error(f"ドキュメントの検索に失敗しました: {e}")
-

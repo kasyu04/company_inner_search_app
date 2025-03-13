@@ -47,21 +47,14 @@ TEMPERATURE = 0.5
 # RAG参照用のデータソース系
 # ==========================================
 RAG_TOP_FOLDER_PATH = "./data"
-# サポートするファイル拡張子と対応するローダーを定義
 SUPPORTED_EXTENSIONS = {
     ".pdf": PyMuPDFLoader,
     ".docx": Docx2txtLoader,
-    ".csv": CSVLoader
+    ".csv": lambda path: CSVLoader(path, encoding="utf-8")
 }
 WEB_URL_LOAD_TARGETS = [
     "https://generative-ai.web-camp.io/"
 ]
-
-
-# ベクターストア関連の設定
-VECTOR_STORE_K = 5
-CHUNK_SIZE = 500
-CHUNK_OVERLAP = 50
 
 
 # ==========================================
