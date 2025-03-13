@@ -57,14 +57,14 @@ if not "initialized" in st.session_state:
 # 4. 初期表示の前にサイドバーの設定を追加
 ############################################################
 mode = st.sidebar.radio(
-    "####利用目的:",
+    "利用目的:",
     (ct.ANSWER_MODE_1, ct.ANSWER_MODE_2)
 )
 st.session_state.mode = mode
 
 st.sidebar.markdown("""
 ### 【「社内文書検索」を選択した場合】
-入力内容と関連性が高い社内文書のありかを検索できます。
+st.info(入力内容と関連性が高い社内文書のありかを検索できます。)
 #### 【入力例】
 社員の育成方針に関するMTGの議事録
 
