@@ -155,17 +155,11 @@ if chat_message:
             if st.session_state.mode == ct.ANSWER_MODE_1:
                 # 入力内容と関連性が高い社内文書のありかを表示
                 content = cn.display_search_llm_response(llm_response)
-                for doc in llm_response:
-                    st.markdown(f"**文書名**: {doc['title']} - **ページ番号**: {doc['page_number']}")
-                    st.markdown(f"**内容**: {doc['content']}")
 
             # モードが「社内問い合わせ」の場合
             elif st.session_state.mode == ct.ANSWER_MODE_2:
                 # 入力に対しての回答と、参照した文書のありかを表示
                 content = cn.display_contact_llm_response(llm_response)
-                for doc in llm_response:
-                    st.markdown(f"**文書名**: {doc['title']} - **ページ番号**: {doc['page_number']}")
-                    st.markdown(f"**内容**: {doc['content']}")
             
             # AIメッセージのログ出力
             logger.info({"message": content, "application_mode": st.session_state.mode})
