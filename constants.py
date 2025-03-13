@@ -47,11 +47,11 @@ TEMPERATURE = 0.5
 # RAG参照用のデータソース系
 # ==========================================
 RAG_TOP_FOLDER_PATH = "./data"
+# サポートするファイル拡張子と対応するローダーを定義
 SUPPORTED_EXTENSIONS = {
     ".pdf": PyMuPDFLoader,
     ".docx": Docx2txtLoader,
-    ".csv": CSVLoader,
-    ".txt": TextLoader  # テキストファイルのローダーを追加
+    ".csv": CSVLoader
 }
 WEB_URL_LOAD_TARGETS = [
     "https://generative-ai.web-camp.io/"
