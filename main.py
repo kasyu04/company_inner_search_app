@@ -58,7 +58,7 @@ if not "initialized" in st.session_state:
 ############################################################
 st.sidebar.title("利用目的の選択")
 mode = st.sidebar.radio(
-    "利用目的を選択してください:",
+    "利用目的",
     (ct.ANSWER_MODE_1, ct.ANSWER_MODE_2)
 )
 st.session_state.mode = mode
@@ -77,9 +77,9 @@ st.sidebar.markdown("""
 
 # 情報メッセージの表示
 if st.session_state.mode == ct.ANSWER_MODE_1:
-    st.info("入力内容と関連性が高い社内文書のありかを検索できます。")
+    st.sidebar.info("入力内容と関連性が高い社内文書のありかを検索できます。")
 elif st.session_state.mode == ct.ANSWER_MODE_2:
-    st.info("質問・要望に対して、社内文書の情報をもとに回答を得られます。")
+    st.sidebar.info("質問・要望に対して、社内文書の情報をもとに回答を得られます。")
 
 
 ############################################################
