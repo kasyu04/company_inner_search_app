@@ -54,6 +54,35 @@ if not "initialized" in st.session_state:
 
 
 ############################################################
+# 4. 初期表示の前にサイドバーの設定を追加
+############################################################
+st.sidebar.title("利用目的の選択")
+mode = st.sidebar.radio(
+    "利用目的",
+    (ct.ANSWER_MODE_1, ct.ANSWER_MODE_2)
+)
+st.session_state.mode = mode
+st.sidebar.markdown("---")  # 区切り線を追加
+st.sidebar.markdown("""
+### 【「社内文書検索」を選択した場合】
+""")
+st.sidebar.info("入力内容と関連性が高い社内文書のありかを検索できます。")
+st.sidebar.markdown("""
+#### 【入力例】
+""")
+st.sidebar.code("社員の育成方針に関するMTGの議事録")
+
+st.sidebar.markdown("""
+### 【「社内問い合わせ」を選択した場合】
+""")
+st.sidebar.info("質問・要望に対して、社内文書の情報をもとに回答を得られます。")
+st.sidebar.markdown("""
+#### 【入力例】
+""")
+st.sidebar.code("人事部に所属している従業員情報を一覧化して")
+
+
+############################################################
 # 4. 初期表示
 ############################################################
 # タイトル表示
@@ -124,16 +153,12 @@ if chat_message:
     # ==========================================
     with st.chat_message("assistant"):
         try:
-            # ==========================================
             # モードが「社内文書検索」の場合
-            # ==========================================
             if st.session_state.mode == ct.ANSWER_MODE_1:
                 # 入力内容と関連性が高い社内文書のありかを表示
                 content = cn.display_search_llm_response(llm_response)
 
-            # ==========================================
             # モードが「社内問い合わせ」の場合
-            # ==========================================
             elif st.session_state.mode == ct.ANSWER_MODE_2:
                 # 入力に対しての回答と、参照した文書のありかを表示
                 content = cn.display_contact_llm_response(llm_response)
