@@ -89,9 +89,6 @@ st.sidebar.code("人事部に所属している従業員情報を一覧化して
 # タイトル表示
 cn.display_app_title()
 
-# モード表示
-cn.display_select_mode()
-
 # AIメッセージの初期表示
 cn.display_initial_ai_message()
 
