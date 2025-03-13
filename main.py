@@ -62,7 +62,7 @@ mode = st.sidebar.radio(
     (ct.ANSWER_MODE_1, ct.ANSWER_MODE_2)
 )
 st.session_state.mode = mode
-
+st.sidebar.markdown("---")  # 区切り線を追加
 st.sidebar.markdown("""
 ### 【「社内文書検索」を選択した場合】
 """)
