@@ -193,7 +193,7 @@ def recursive_file_check(path, docs_all):
         for file in files:
             # ファイル/フォルダ名だけでなく、フルパスを取得
             full_path = os.path.join(path, file)
-            # 再帰的にファイル/フォルダをチェック
+            # フルパスを渡し、再帰的にファイル読み込みの関数を実行
             recursive_file_check(full_path, docs_all)
     else:
         # パスがファイルの場合、ファイル読み込み
@@ -210,15 +210,10 @@ def file_load(path, docs_all):
     """
     # ファイルの拡張子を取得
     file_extension = os.path.splitext(path)[1]
+    # ファイル名（拡張子を含む）を取得
+    file_name = os.path.basename(path)
 
-    # テキストファイルの場合の処理
-    if file_extension == ".txt":
-        with open(path, "r", encoding="utf-8") as file:
-            content = file.read()
-            doc = Document(page_content=content, metadata={"source": path})
-            docs_all.append(doc)
-
-    # その他のファイル形式の場合の処理
+    # 想定していたファイル形式の場合のみ読み込む
     if file_extension in ct.SUPPORTED_EXTENSIONS:
         # ファイルの拡張子に合ったdata loaderを使ってデータ読み込み
         loader = ct.SUPPORTED_EXTENSIONS[file_extension](path)
